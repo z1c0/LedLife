@@ -23,6 +23,11 @@ uint16_t currentColor = 0;
 uint16_t lastChanged = 0;
 uint16_t countDown = 0;
 
+uint8_t getColorVal()
+{
+  return 7;
+  // return random(8);
+}
 uint16_t getColor(bool newColor)
 {
   uint8_t r = 0;
@@ -30,41 +35,41 @@ uint16_t getColor(bool newColor)
   uint8_t b = 0;
   if (newColor)
   {
-    currentColor = random(7);
+    currentColor = random() % 7;
   }
   switch (currentColor)
   {
     case 0: // green
-      g = random(8);
+      g = getColorVal();
       break;
       
     case 1: // red    
-      r = random(8);
+      r = getColorVal();
       break;
       
     case 2:  // blue
-      b = random(8);
+      b = getColorVal();
       break;
       
     case 3:  // yellow
-      r = random(8);
-      g = random(8);
+      r = getColorVal();
+      g = getColorVal();
       break;
       
     case 4:  // cyan
-      g = random(8);
-      b = random(8);
+      g = getColorVal();
+      b = getColorVal();
       break;
       
     case 5:  // magenta
-      r = random(8);
-      b = random(8);      
+      r = getColorVal();
+      b = getColorVal();      
       break;
       
     default:  // white
-      r = random(8);
-      b = random(8);
-      g = random(8);
+      r = getColorVal();
+      b = getColorVal();
+      g = getColorVal();
       break;
   }
   return matrix.Color333(r, g, b);
@@ -91,12 +96,11 @@ void initWorld()
   {
     for (int c = 0;  c < MAX_COLS; c++)
     {
-      //world[r][c] = random(1000) > 700 ? getColor(false) : 0;
-      //world[r][c] = 0;
+      world[r][c] = random(1000) > 700 ? getColor(false) : 0;
     }
   }
   // init world
-  if (true)
+  if (false)
   {
     // Blinker
     world[4][4] = 1;
@@ -147,18 +151,30 @@ void initWorld()
 
 void setup()
 {
-  randomSeed(analogRead(0));
+  Serial.begin(9600);
+  Serial.println("Hello LedLife");
+  int seed = analogRead(11);
+  delay(seed % 9);
+  seed = seed * millis();
+  Serial.println(seed);
+  randomSeed(seed);
   matrix.begin();
   initWorld();
 }
 
 void render()
 {  
+  uint16_t color = getColor(false);
   for (byte r = 0; r < MAX_ROWS; r++)
   {
     for (byte c = 0;  c < MAX_COLS; c++)
     {
-      matrix.drawPixel(c, r, world[r][c]);
+      uint16_t cc = 0;
+      if (world[r][c] != 0)
+      {
+        cc = color;
+      }
+      matrix.drawPixel(c, r, cc);        
     }
   }
   matrix.swapBuffers(true);
